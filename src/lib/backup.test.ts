@@ -21,6 +21,11 @@ describe('backup validation', () => {
     expect(isBackup({ ...validBackup, items: [{ ...validItem, name: '   ' }] })).toBe(false)
     expect(isBackup({ ...validBackup, items: [{ ...validItem, image: 'data:image/svg+xml;base64,PHN2Zz4=' }] })).toBe(false)
   })
+  it('accepts legacy backups without a style and validates the optional style field', () => {
+    expect(isBackup(validBackup)).toBe(true)
+    expect(isBackup({ ...validBackup, items: [{ ...validItem, style: 'formal' }] })).toBe(true)
+    expect(isBackup({ ...validBackup, items: [{ ...validItem, style: 'unknown-style' }] })).toBe(false)
+  })
   it('rejects duplicate item IDs rather than silently overwriting one record', () => {
     expect(isBackup({ ...validBackup, items: [validItem, { ...validItem, name: 'نسخة ثانية' }] })).toBe(false)
   })
