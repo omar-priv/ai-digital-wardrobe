@@ -36,3 +36,14 @@ These are upstream agent skills, not runtime dependencies:
 - Empty, loading, error, add, edit, delete, backup and import states are covered.
 - Desktop and narrow mobile widths have been inspected in a browser.
 - Verification limitations are explicitly listed.
+ 
+## Installed review skills
+For a full project review, read and follow .agents/skills/wardrobe-full-audit/SKILL.md. The upstream review, debugging, security, privacy, testing, design and accessibility skills are catalogued in .agents/skills/README.md. Load the relevant skill and its referenced files when the task calls for it; do not paste every skill into every prompt.
+
+For a review focused on the GitHub Copilot review workflow, the same project-specific guidance is available at .github/skills/code-review/SKILL.md.
+
+## Test and verification commands
+- npm test — run unit and IndexedDB regression tests.
+- npm run build — TypeScript project build and production bundle.
+- The repository currently has no committed package-lock.json; CI uses npm install. Do not claim dependency resolution is fully reproducible until a lockfile is committed.
+- Browser/device checks remain separate from unit tests and the production build.
