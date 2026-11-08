@@ -74,3 +74,37 @@ The Vitest configuration explicitly includes only src/**/*.test.ts so the Cloudf
 
 ## Verdict
 **Source build and regression tests: PASS. Browser/device verification: NOT RUN.** The known source-level P1/P2 findings in this pass are fixed, but this is not a claim that the product is bug-free, fully secure or WCAG-certified.
+
+
+## Focused outfit redesign — branch `feat/smart-outfit-redesign`
+
+**Scope:** outfit generation, garment metadata, outfit filters/cards, backup compatibility and related design documentation. This section records source inspection only; it is not a build, test or browser approval.
+
+### Confirmed pre-change cause
+
+`src/lib/outfits.ts` previously took the first top and bottom in storage order, selected the first season-compatible shoe, and added the first winter outerwear item. It did not compare colors, style or the relative quality of candidate combinations. The screen labelled the results as generic daily outfits and displayed the pieces without a reason for the pairing.
+
+### Changes made on the feature branch
+
+- Added optional `ClothingItem.style` labels: casual, smart-casual, formal, sport, streetwear, classic, or unspecified.
+- Kept style optional so old IndexedDB records and JSON version-1 backups remain readable; the backup validator rejects unknown style values when present.
+- Replaced first-match selection with deterministic candidate scoring for recognized Arabic/English color names and hex colors, season fit, and style compatibility.
+- Avoided clearly conflicting style pairs, season-incompatible pieces and unsupported extras; ranked shoes, outerwear and accessories by their compatibility with the core pair.
+- Added result diversity, style/season filters and explanation labels.
+- Redesigned recommendation cards to show the upper/lower core pair separately from optional additions and to explain the match using the existing palette.
+- Added outfit-engine and backup-compatibility regression tests.
+
+### Important limits
+
+This is a transparent local rules engine, **not AI**. It does not classify garment photos, inspect fabric/cut/fit, understand body shape, or infer occasion/weather. Color recognition uses user-entered color text or a hex value; style is manually selected. Unknown or poorly entered color data can lead to no recommendation rather than a guess.
+
+### Verification status
+
+- Source changes committed to the feature branch: **DONE**.
+- Automated tests for the feature branch: **NOT RUN** in this environment.
+- TypeScript/Vite production build for the feature branch: **NOT RUN**.
+- Real-browser screenshots and 320/360/tablet/desktop RTL checks: **NOT RUN**.
+- Keyboard/screen-reader/reduced-motion inspection of the changed screen: **NOT RUN**.
+- Independent subagent review: **NOT RUN**; no subagent runtime was available.
+
+Do not merge or describe the redesign as tested until these checks pass.
