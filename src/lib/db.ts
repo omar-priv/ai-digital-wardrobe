@@ -48,8 +48,13 @@ function run<T>(
         reject(transaction.error ?? new Error('تم إلغاء معاملة التخزين'))
       }
     } catch (error) {
-      db.close()
-      reject(error)
+      if (transaction) {
+        transaction.onabort = () => { db.close(); reject(error) }
+        try { transaction.abort() } catch { db.close(); reject(error) }
+      } else {
+        db.close()
+        reject(error)
+      }
     }
   }))
 }
@@ -60,9 +65,10 @@ function run<T>(
  */
 export function importBackup(items: ClothingItem[], profile?: BodyProfile): Promise<void> {
   return openDB().then(db => new Promise<void>((resolve, reject) => {
+    let transaction: IDBTransaction | undefined
     try {
       const stores = profile ? [CLOTHES, SETTINGS] : [CLOTHES]
-      const transaction = db.transaction(stores, 'readwrite')
+      transaction = db.transaction(stores, 'readwrite')
       transaction.oncomplete = () => {
         db.close()
         resolve()
