@@ -1,6 +1,6 @@
 # Project Agent Skills
 
-These are project-local Agent Skills in the standard .agents/skills/<name>/SKILL.md layout. They are instructions and reference material, not runtime dependencies.
+These are 27 project-local Agent Skills in the standard .agents/skills/<name>/SKILL.md layout. They are instructions and reference material, not runtime dependencies.
 
 ## Main workflow
 - wardrobe-full-audit — project-specific end-to-end code, data, design, RTL and accessibility audit.
