@@ -14,7 +14,7 @@ describe('backup validation', () => {
   it('accepts a valid backup', () => expect(isBackup(validBackup)).toBe(true))
   it('rejects malformed and oversized profile values', () => {
     expect(isBackup({ ...validBackup, profile: 'not-an-object' })).toBe(false)
-    expect(isBackup({ ...validBackup, profile: { styleNotes: 'x'.repeat(1001), updatedAt: 1 } })).toBe(false)
+    expect(isBackup({ ...validBackup, profile: { styleNotes: 'x'.repeat(10_001), updatedAt: 1 } })).toBe(false)
   })
   it('rejects invalid item fields and unsupported image data', () => {
     expect(isBackup({ ...validBackup, items: [{ ...validItem, category: 'unknown' }] })).toBe(false)
