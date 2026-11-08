@@ -200,3 +200,96 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   .wardrobe-illustration{display:none}
   .welcome-copy{max-width:100%}
 }
+
+
+/* Outfit styling: structured looks, clear garment roles and useful reasons. */
+.outfits-view{max-width:1120px}
+.outfit-hero{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:28px;
+  padding:clamp(24px,4vw,38px);margin:12px 0 22px;border-radius:22px;
+  background:var(--lavender);position:relative;overflow:hidden;
+}
+.outfit-hero:after{
+  content:"";position:absolute;inline-size:270px;block-size:270px;border:1px solid var(--accent-soft);
+  border-radius:50%;inset-inline-end:7%;inset-block-start:-58%;pointer-events:none
+}
+.outfit-hero-copy{max-width:680px;position:relative;z-index:1}
+.outfit-hero-copy>span{font-size:12px;color:var(--accent-dark);font-weight:700}
+.outfit-hero-copy h2{font-size:clamp(25px,3vw,36px);line-height:1.35;color:var(--ink);margin:10px 0 8px;text-wrap:balance}
+.outfit-hero-copy p{font-size:13px;line-height:1.8;color:var(--muted);margin:0;max-width:600px}
+.outfit-result-count{
+  min-width:118px;padding:14px 17px;border-radius:16px;background:var(--surface);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  color:var(--muted);position:relative;z-index:1
+}
+.outfit-result-count strong{font-size:30px;line-height:1.1;color:var(--ink);font-variant-numeric:tabular-nums}
+.outfit-result-count span{font-size:11px;white-space:nowrap}
+.outfit-filters{display:flex;align-items:end;gap:12px;margin:0 0 20px}
+.outfit-filters label{display:grid;gap:7px;min-width:180px;color:var(--ink);font-size:12px;font-weight:600}
+.outfit-filters select{
+  min-height:43px;padding:9px 12px;background:var(--surface);border:1px solid var(--line);
+  border-radius:10px;color:var(--ink);font-size:13px;min-width:0
+}
+.outfit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px;align-items:start}
+.outfit-card{
+  min-width:0;display:flex;flex-direction:column;gap:16px;padding:19px;
+  background:var(--surface);border:1px solid var(--line);border-radius:18px;
+  box-shadow:0 5px 18px rgba(38,39,58,.035)
+}
+.outfit-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0}
+.outfit-card-title{display:flex;align-items:center;gap:11px;min-width:0}
+.outfit-rank{
+  width:38px;height:38px;flex:0 0 auto;border-radius:12px;display:grid;place-items:center;
+  background:var(--accent-soft);color:var(--accent-dark);font-size:15px;font-weight:700
+}
+.outfit-card-title h3{font-size:15px;line-height:1.35;color:var(--ink);margin:0 0 4px}
+.outfit-card-title small{font-size:10px;color:var(--muted)}
+.outfit-quality{flex:0 0 auto;padding:6px 10px;border-radius:30px;font-size:10px;font-weight:700}
+.outfit-quality.strong{background:var(--accent-soft);color:var(--accent-dark)}
+.outfit-quality.good{background:var(--paper);color:var(--muted)}
+.outfit-main-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.outfit-main-item{min-width:0;overflow:hidden;border-radius:13px;background:var(--paper);border:1px solid var(--line)}
+.outfit-item-media{height:clamp(145px,18vw,205px);display:grid;place-items:center;background:var(--paper);overflow:hidden}
+.outfit-item-media .item-photo,.outfit-item-media .photo-placeholder{width:100%;height:100%;object-fit:contain;padding:11px}
+.outfit-item-copy{display:grid;gap:4px;padding:10px 11px}
+.outfit-item-copy small{font-size:10px;color:var(--muted)}
+.outfit-item-copy strong{font-size:12px;line-height:1.5;color:var(--ink);overflow-wrap:anywhere}
+.outfit-item-copy>span{font-size:10px;color:var(--muted)}
+.outfit-extras{display:grid;gap:9px}
+.outfit-extras h4{font-size:11px;color:var(--ink);margin:0}
+.outfit-extras>div{display:flex;flex-wrap:wrap;gap:8px}
+.outfit-extra-item{
+  display:flex;align-items:center;gap:9px;min-width:0;flex:1 1 145px;
+  padding:7px;border-radius:11px;background:var(--paper);border:1px solid var(--line)
+}
+.outfit-extra-item .outfit-item-media{width:56px;height:56px;flex:0 0 56px;border-radius:8px}
+.outfit-extra-item .outfit-item-media .item-photo,.outfit-extra-item .outfit-item-media .photo-placeholder{padding:4px}
+.outfit-extra-item .outfit-item-copy{min-width:0;padding:0}
+.outfit-reasons{display:flex;flex-wrap:wrap;gap:7px;list-style:none;padding:12px 0 0;margin:0;border-top:1px solid var(--line)}
+.outfit-reasons li{font-size:10px;color:var(--accent-dark);background:var(--accent-soft);border-radius:7px;padding:6px 9px;line-height:1.4}
+.field-hint{font-size:10px;line-height:1.55;color:var(--muted);font-weight:400}
+@media(max-width:900px){
+  .outfit-grid{grid-template-columns:1fr}
+  .outfit-main-item .outfit-item-media{height:210px}
+}
+@media(max-width:520px){
+  .outfit-hero{align-items:flex-start;flex-direction:column;gap:16px;padding:22px 18px}
+  .outfit-hero:after{inset-inline-end:-12%;inset-block-start:-35%}
+  .outfit-hero-copy h2{font-size:27px}
+  .outfit-result-count{min-width:0;width:100%;flex-direction:row;justify-content:flex-start;gap:9px;padding:10px 13px}
+  .outfit-result-count strong{font-size:22px}
+  .outfit-filters{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .outfit-filters label{min-width:0;font-size:11px}
+  .outfit-filters select{font-size:12px;padding-inline:8px}
+  .outfit-card{padding:13px;gap:13px}
+  .outfit-card-head{align-items:flex-start}
+  .outfit-card-title{gap:8px}
+  .outfit-rank{width:33px;height:33px}
+  .outfit-card-title h3{font-size:13px}
+  .outfit-quality{font-size:9px;padding:5px 8px}
+  .outfit-main-pair{gap:8px}
+  .outfit-main-item .outfit-item-media{height:145px}
+  .outfit-item-copy{padding:8px}
+  .outfit-item-copy strong{font-size:11px}
+  .outfit-extra-item{flex-basis:100%}
+}
