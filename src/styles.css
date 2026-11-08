@@ -32,7 +32,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .main-area{width:min(1440px,100%);min-width:0;margin:0 auto;padding:35px clamp(22px,4vw,62px) 70px}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:28px}
 .eyebrow{font-size:11px;color:var(--muted);letter-spacing:.2px}
-.page-heading h1{font-size:27px;line-height:1.3;margin:5px 0 0;font-weight:700;letter-spacing:-.5px}
+.page-heading h1{font-size:27px;line-height:1.3;margin:5px 0 0;font-weight:700;letter-spacing:0}
 .top-actions{display:flex;align-items:center;gap:9px}
 .primary-btn,.secondary-btn,.quiet-btn{min-height:43px;border:0;border-radius:11px;padding:10px 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:600;transition:background .18s,transform .18s}
 .primary-btn{background:var(--accent);color:white;box-shadow:0 5px 13px #575a912b}
@@ -46,7 +46,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .welcome-panel:after{content:"";position:absolute;inset-inline-end:28%;top:-65%;width:420px;height:420px;border:1px solid #bcbad1;border-radius:50%;z-index:-1}
 .welcome-copy{max-width:570px;position:relative;z-index:1}
 .welcome-kicker{font-size:12px;font-weight:600;color:#5b5d82}
-.welcome-copy h2{font-size:clamp(31px,3.5vw,45px);line-height:1.28;letter-spacing:-1px;margin:12px 0;color:#292a3e}
+.welcome-copy h2{font-size:clamp(31px,3.5vw,45px);line-height:1.28;letter-spacing:0;margin:12px 0;color:#292a3e}
 .welcome-copy p{font-size:14px;color:#54556e;margin:0;line-height:1.8}
 .welcome-count{display:flex;align-items:center;gap:10px;margin-top:19px;color:#4f5069;font-size:12px}
 .welcome-count strong{font-size:23px;color:#34354e;font-variant-numeric:tabular-nums}
