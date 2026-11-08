@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import type { FormEvent } from 'react'
 import { Plus, Search, Shirt, Trash2, Pencil, X, Sparkles, Download, Upload, UserRound, Layers3 } from 'lucide-react'
 import { deleteClothing, getAllClothes, getBodyProfile, saveBodyProfile, saveClothing } from './lib/db'
 import { categoryLabels, makeId } from './lib/format'
@@ -40,7 +41,7 @@ export default function App() {
   const openEdit = (item:ClothingItem) => { setEditing(item);setForm({name:item.name,category:item.category,color:item.color,season:item.season,notes:item.notes});setPhoto(item.image);setPreview('');setModal(true) }
   const choosePhoto = (file?:File) => { if(!file)return; if(!file.type.startsWith('image/')){setNotice('اختار ملف صورة');return} if(file.size>8*1024*1024){setNotice('حجم الصورة لازم يكون أقل من 8MB');return} setPhoto(file);setPreview(URL.createObjectURL(file)) }
   const closeModal = () => { setModal(false);if(preview)URL.revokeObjectURL(preview);setPreview('') }
-  const submit = async (e:React.FormEvent) => { e.preventDefault(); if(!form.name.trim()){setNotice('اكتب اسم القطعة');return}
+  const submit = async (e:FormEvent) => { e.preventDefault(); if(!form.name.trim()){setNotice('اكتب اسم القطعة');return}
     const now=Date.now();const item:ClothingItem={id:editing?.id??makeId(),...form,name:form.name.trim(),image:photo,createdAt:editing?.createdAt??now,updatedAt:now}
     await saveClothing(item);await refresh();closeModal();setNotice('انحفظت القطعة')
   }
