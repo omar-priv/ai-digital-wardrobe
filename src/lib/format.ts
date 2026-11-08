@@ -12,7 +12,7 @@ export const categoryLabels: Record<ClothingCategory, string> = {
 }
 
 export const styleLabels: Record<ClothingStyle, string> = {
-  any: 'متعدد الاستخدامات',
+  any: 'غير محدد',
   casual: 'كاجوال',
   'smart-casual': 'سمارت كاجوال',
   formal: 'رسمي',
