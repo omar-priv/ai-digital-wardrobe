@@ -1,9 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
-
 :root{
-  font-family:'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;
+  font-family:Tahoma,'Segoe UI',Arial,sans-serif;
   color:#252637;background:#f1f1f4;font-synthesis:none;text-rendering:optimizeLegibility;
-  --ink:#252637;--muted:#777889;--paper:#f1f1f4;--surface:#fff;--line:#e4e3e9;
+  --ink:#252637;--muted:#626375;--paper:#f1f1f4;--surface:#fff;--line:#e4e3e9;
   --accent:#575a91;--accent-dark:#41446f;--accent-soft:#e8e7f2;--lavender:#d9d7e9;
   --radius:18px;--shadow:0 12px 35px rgba(38,39,58,.07);
 }
@@ -30,7 +28,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .privacy-mark{display:flex;align-items:center;gap:8px;color:#dedced;font-size:12px}
 .privacy-mark svg{color:#c9c7e7}
 .sidebar-footer p{font-size:11px;line-height:1.8;color:#b4b4c4;margin:10px 0}
-.sidebar-footer small{font-size:10px;color:#8e8fa5}
+.sidebar-footer small{font-size:10px;color:#9fa0b3}
 .main-area{width:min(1440px,100%);min-width:0;margin:0 auto;padding:35px clamp(22px,4vw,62px) 70px}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:28px}
 .eyebrow{font-size:11px;color:var(--muted);letter-spacing:.2px}
@@ -43,17 +41,17 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .secondary-btn:hover{background:#e1dfeb}
 .quiet-btn{width:43px;padding:0;background:#fff;color:#55566b;border:1px solid var(--line)}
 .quiet-btn:hover{background:#e9e8f0}
-.file-action{cursor:pointer}
+.file-action{cursor:pointer;position:relative;overflow:hidden}.file-action input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .welcome-panel{min-height:270px;border-radius:23px;background:#dcdbea;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;padding:34px clamp(25px,4vw,52px);isolation:isolate}
 .welcome-panel:after{content:"";position:absolute;inset-inline-end:28%;top:-65%;width:420px;height:420px;border:1px solid #bcbad1;border-radius:50%;z-index:-1}
 .welcome-copy{max-width:570px;position:relative;z-index:1}
 .welcome-kicker{font-size:12px;font-weight:600;color:#5b5d82}
 .welcome-copy h2{font-size:clamp(31px,3.5vw,45px);line-height:1.28;letter-spacing:-1px;margin:12px 0;color:#292a3e}
-.welcome-copy p{font-size:14px;color:#65667f;margin:0;line-height:1.8}
-.welcome-count{display:flex;align-items:center;gap:10px;margin-top:19px;color:#60617a;font-size:12px}
+.welcome-copy p{font-size:14px;color:#54556e;margin:0;line-height:1.8}
+.welcome-count{display:flex;align-items:center;gap:10px;margin-top:19px;color:#4f5069;font-size:12px}
 .welcome-count strong{font-size:23px;color:#34354e;font-variant-numeric:tabular-nums}
 .wardrobe-illustration{width:260px;height:210px;position:relative;flex:0 0 260px;display:flex;align-items:flex-end;justify-content:center}
-.wardrobe-illustration>span{position:absolute;bottom:0;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;letter-spacing:2px;color:#696a88}
+.wardrobe-illustration>span{position:absolute;bottom:0;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;letter-spacing:2px;color:#54556e}
 .hanger-line{position:absolute;top:10px;left:50%;width:2px;height:30px;background:#777894}
 .hanger-shape{position:absolute;top:27px;left:50%;transform:translateX(-50%);font-size:58px;line-height:1;color:#777894}
 .fabric{position:absolute;bottom:28px;width:80px;height:125px;border-radius:18px 18px 8px 8px;box-shadow:0 12px 20px #36364b20}
@@ -84,16 +82,16 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .card-actions button{width:35px;height:35px;border:1px solid #ffffff80;border-radius:10px;background:#292a3bd9;color:white;display:grid;place-items:center}
 .card-info{padding:13px 14px 15px}
 .card-info h3{font-size:14px;font-weight:600;margin:0 0 10px;overflow-wrap:anywhere}
-.item-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#858596;font-size:10px}
+.item-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#656678;font-size:10px}
 .item-meta span{min-width:0}
 .color-meta{display:flex;align-items:center;gap:6px}
 .color-meta i{width:9px;height:9px;flex:0 0 auto;border:1px solid #0002;border-radius:50%}
-.item-notes{font-size:11px;color:#77788a;margin:10px 0 0;line-height:1.6;overflow-wrap:anywhere}
+.item-notes{font-size:11px;color:#626375;margin:10px 0 0;line-height:1.6;overflow-wrap:anywhere}
 .add-card{min-height:290px;border:1px dashed #bdbdce;border-radius:15px;background:#f7f7f9;color:#62637d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
 .add-card:hover{background:#ecebf3;border-color:#7779a5}
 .add-card>span{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;background:#e7e6f1;color:#54567f;margin-bottom:5px}
-.add-card b{font-size:13px}.add-card small{font-size:10px;color:#8a8b9b}
-.empty-state{min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:9px;padding:35px 18px;color:#77788a}
+.add-card b{font-size:13px}.add-card small{font-size:10px;color:#626375}
+.empty-state{min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:9px;padding:35px 18px;color:#626375}
 .empty-icon{width:55px;height:55px;border-radius:17px;background:#e5e4ef;color:#666891;display:grid;place-items:center}
 .empty-icon svg{width:25px;height:25px;stroke-width:1.6}
 .empty-state h3{font-size:17px;color:#333449;margin:5px 0 0}
@@ -104,7 +102,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .intro-icon{width:43px;height:43px;flex:0 0 auto;border-radius:13px;background:#f1f0f6;color:#555780;display:grid;place-items:center}
 .intro-icon svg{width:21px;height:21px}
 .view-intro h2{font-size:19px;margin:0 0 5px}
-.view-intro p{font-size:12px;line-height:1.7;color:#696a82;margin:0}
+.view-intro p{font-size:12px;line-height:1.7;color:#54556e;margin:0}
 .outfit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
 .outfit-card{background:white;border:1px solid var(--line);border-radius:15px;padding:17px}
 .outfit-card-head{display:flex;align-items:center;justify-content:space-between;color:#858598;font-size:11px;margin-bottom:15px}
@@ -118,7 +116,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .profile-form label>span{display:flex;align-items:center;gap:8px;font-size:13px;color:#48495f}
 .profile-form input,.profile-form textarea,.field-label input,.field-label textarea,.field-label select{width:100%;min-width:0;background:#fafafd;border:1px solid #dedde6;border-radius:10px;padding:12px;color:var(--ink);outline:0;font-size:13px}
 .profile-form textarea,.field-label textarea{min-height:105px;resize:vertical;line-height:1.7}
-.privacy-footnote{display:flex;align-items:center;gap:7px;color:#818195;font-size:11px;margin:17px 0 0}
+.privacy-footnote{display:flex;align-items:center;gap:7px;color:#626375;font-size:11px;margin:17px 0 0}
 .privacy-footnote svg{color:#666891}
 .modal-backdrop{position:fixed;inset:0;z-index:10;background:#1d1d2c9c;display:grid;place-items:center;padding:18px;overflow-y:auto}
 .modal{width:min(540px,100%);max-height:min(94dvh,850px);overflow-y:auto;background:#fff;border-radius:19px;padding:23px;box-shadow:0 25px 80px #17172940}
@@ -128,7 +126,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .photo-upload{height:130px;border:1px dashed #b5b4ca;border-radius:12px;background:#f6f6fa;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:#5c5e87;position:relative;overflow:hidden;margin-bottom:17px}
 .photo-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .photo-upload img{width:100%;height:100%;object-fit:contain}
-.photo-upload b{font-size:12px}.photo-upload small{font-size:10px;color:#8c8da0}
+.photo-upload b{font-size:12px}.photo-upload small{font-size:10px;color:#68697a}
 .field-label{display:grid;gap:7px;margin:14px 0;color:#515267;font-size:12px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
 .modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:22px}
