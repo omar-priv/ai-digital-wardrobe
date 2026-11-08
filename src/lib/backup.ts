@@ -1,4 +1,4 @@
-import type { BodyProfile, ClothingCategory, ClothingItem, ClothingSeason } from '../types'
+import type { BodyProfile, ClothingCategory, ClothingItem, ClothingSeason, ClothingStyle } from '../types'
 import { clothingCategories } from './format'
 
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024
@@ -8,6 +8,7 @@ export const MAX_BACKUP_ITEMS = 10_000
 export const MAX_PROFILE_NOTES = 10_000
 
 const allowedSeasons: ClothingSeason[] = ['all', 'summer', 'winter']
+const allowedStyles: ClothingStyle[] = ['any', 'casual', 'smart-casual', 'formal', 'sport', 'streetwear', 'classic']
 const imageDataPattern = /^data:(image\/(?:png|jpeg|jpg|webp|gif));base64,((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?)$/i
 const maxBase64Chars = Math.ceil(MAX_IMAGE_BYTES / 3) * 4
 
@@ -40,6 +41,7 @@ function isValidItem(value: unknown): value is BackupItem {
     typeof value.category === 'string' && clothingCategories.includes(value.category as ClothingCategory) &&
     typeof value.color === 'string' && value.color.length <= 40 &&
     typeof value.season === 'string' && allowedSeasons.includes(value.season as ClothingSeason) &&
+    (value.style === undefined || (typeof value.style === 'string' && allowedStyles.includes(value.style as ClothingStyle))) &&
     typeof value.notes === 'string' && value.notes.length <= 500 &&
     typeof value.createdAt === 'number' && Number.isFinite(value.createdAt) && value.createdAt > 0 &&
     typeof value.updatedAt === 'number' && Number.isFinite(value.updatedAt) && value.updatedAt > 0 &&
