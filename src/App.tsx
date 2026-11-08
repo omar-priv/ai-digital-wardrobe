@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent, ChangeEvent, ReactNode } from 'react'
 import { Shirt, Plus, Search, Download, Upload, Sparkles, UserRound, Trash2, Pencil, X, ShieldCheck, PackageOpen, Ruler, Layers3 } from 'lucide-react'
-import { deleteClothing, getAllClothes, getBodyProfile, saveBodyProfile, saveClothing } from './lib/db'
-import { categoryLabels, makeId } from './lib/format'
+import { deleteClothing, getAllClothes, getBodyProfile, importBackup, saveBodyProfile, saveClothing } from './lib/db'
+import { blobToData, dataUrlToBlob, isBackup, MAX_BACKUP_BYTES, MAX_IMAGE_BYTES } from './lib/backup'
+import { buildOutfits } from './lib/outfits'
+import { categoryLabels, clothingCategories, makeId } from './lib/format'
 import type { BodyProfile, ClothingCategory, ClothingItem, ClothingSeason } from './types'
 
-const categories: ClothingCategory[] = ['tops','bottoms','shoes','outerwear','accessories','other']
 const emptyForm = { name:'', category:'tops' as ClothingCategory, color:'', season:'all' as ClothingSeason, notes:'' }
-const MAX_IMAGE_BYTES = 8 * 1024 * 1024
-const MAX_BACKUP_BYTES = 50 * 1024 * 1024
 
 function Photo({blob,name}:{blob:Blob|null;name:string}) {
   const [url,setUrl] = useState('')
@@ -84,8 +83,9 @@ export default function App() {
     try{
       const parsed:unknown=JSON.parse(await file.text())
       if(!isBackup(parsed))throw new Error('invalid backup')
-      for(const raw of parsed.items)await saveClothing({...raw,image:raw.image?dataToBlob(raw.image):null})
-      if(parsed.profile){await saveBodyProfile(parsed.profile);setProfile(parsed.profile)}
+      const importedItems=parsed.items.map(raw=>({...raw,image:raw.image?dataUrlToBlob(raw.image):null}))
+      await importBackup(importedItems,parsed.profile)
+      if(parsed.profile)setProfile(parsed.profile)
       await refresh();setNotice('تم استيراد ودمج النسخة الاحتياطية مع القطع الموجودة.')
     }catch{setNotice('الملف مش نسخة احتياطية صالحة من خزانتي.')}
     finally{setBusy(false)}
@@ -96,9 +96,10 @@ export default function App() {
     try{await saveBodyProfile(next);setProfile(next);setNotice('انحفظت معلوماتك على جهازك.')}catch{setNotice('تعذّر حفظ المعلومات. جرّب مرة ثانية.')}
   }
 
-  return <main className="app-shell">
+  return <div className="app-shell">
+    <a className="skip-link" href="#main-content">تجاوز إلى المحتوى</a>
     <aside className="sidebar">
-      <a className="brand" href="#" onClick={e=>{e.preventDefault();setTab('wardrobe')}} aria-label="خزانتي - الرئيسية"><span className="brand-mark"><Layers3 size={22}/></span><span className="brand-copy"><b>خزانتي</b><small>WARDROBE ARCHIVE</small></span></a>
+      <button className="brand" type="button" onClick={()=>setTab('wardrobe')} aria-label="خزانتي - الرئيسية"><span className="brand-mark"><Layers3 size={22}/></span><span className="brand-copy"><b>خزانتي</b><small>WARDROBE ARCHIVE</small></span></button>
       <span className="nav-caption">مساحتك</span>
       <nav className="main-nav" aria-label="القائمة الرئيسية">
         <NavButton active={tab==='wardrobe'} onClick={()=>setTab('wardrobe')} icon={<Shirt/>} label="الملابس"/>
@@ -108,7 +109,7 @@ export default function App() {
       <div className="sidebar-footer"><div className="privacy-mark"><ShieldCheck size={17}/><span>خصوصيتك أولاً</span></div><p>صورك وبياناتك بتضل على جهازك. ما في رفع تلقائي.</p><small>نسخة محلية · بدون اشتراك</small></div>
     </aside>
 
-    <section className="main-area">
+    <main id="main-content" className="main-area">
       <header className="topbar"><div className="page-heading"><span className="eyebrow">{tab==='wardrobe'?'مساحة ملابسك':tab==='outfits'?'أفكار من قطعك':'تفضيلاتك'}</span><h1>{tab==='wardrobe'?'خزانة ملابسك':tab==='outfits'?'نسّق إطلالتك':'ملفك الشخصي'}</h1></div>
         {tab==='wardrobe'&&<div className="top-actions"><button className="quiet-btn" onClick={exportData} disabled={busy} aria-label="تصدير نسخة احتياطية" title="تصدير نسخة احتياطية"><Download size={18}/></button><label className="quiet-btn file-action" title="استيراد نسخة احتياطية" aria-label="استيراد نسخة احتياطية"><Upload size={18}/><input type="file" accept="application/json,.json" onChange={importData} aria-label="اختيار ملف النسخة الاحتياطية"/></label><button className="primary-btn" onClick={openNew}><Plus size={18}/><span>أضف قطعة</span></button></div>}
       </header>
@@ -119,7 +120,7 @@ export default function App() {
           <div className="wardrobe-illustration" aria-hidden="true"><div className="hanger-line"/><div className="hanger-shape">⌁</div><div className="fabric fabric-one"/><div className="fabric fabric-two"/><div className="fabric fabric-three"/><span>YOUR DAILY EDIT</span></div>
         </section>
         <div className="section-toolbar"><div><h2>قطعك</h2><p>{visible.length===items.length?'كل القطع الموجودة بخزانتك':'عرض '+visible.length+' من '+items.length+' قطعة'}</p></div><label className="search-box"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="ابحث عن قطعة أو لون" aria-label="ابحث عن قطعة أو لون"/></label></div>
-        <div className="filters" aria-label="تصفية حسب التصنيف"><button className={filter==='all'?'selected':''} aria-pressed={filter==='all'} onClick={()=>setFilter('all')}>الكل <span>{items.length}</span></button>{categories.map(c=><button key={c} className={filter===c?'selected':''} aria-pressed={filter===c} onClick={()=>setFilter(c)}>{categoryLabels[c]}</button>)}</div>
+        <div className="filters" aria-label="تصفية حسب التصنيف"><button className={filter==='all'?'selected':''} aria-pressed={filter==='all'} onClick={()=>setFilter('all')}>الكل <span>{items.length}</span></button>{clothingCategories.map(c=><button key={c} className={filter===c?'selected':''} aria-pressed={filter===c} onClick={()=>setFilter(c)}>{categoryLabels[c]}</button>)}</div>
         {loading?<Empty icon={<PackageOpen/>} title="بنجهّز خزانتك" description="لحظات وبنظهرلك القطع المحفوظة."/>:
           visible.length===0?<Empty icon={<Shirt/>} title={items.length?'ما لقينا قطع مطابقة':'خزانتك لسه فاضية'} description={items.length?'غيّر كلمة البحث أو اختار تصنيف ثاني.':'أضف أول قطعة وبلّش رتّب خزانتك.'} action={!items.length?<button className="primary-btn" onClick={openNew}><Plus size={18}/> أضف أول قطعة</button>:undefined}/>:
           <div className="clothes-grid">{visible.map(item=><article className="clothing-card" key={item.id}><div className="card-image"><Photo blob={item.image} name={item.name}/><span className="category-chip">{categoryLabels[item.category]}</span><div className="card-actions"><button onClick={()=>openEdit(item)} aria-label={'تعديل '+item.name} title="تعديل"><Pencil size={16}/></button><button onClick={()=>remove(item.id)} aria-label={'حذف '+item.name} title="حذف"><Trash2 size={16}/></button></div></div><div className="card-info"><h3>{item.name}</h3><div className="item-meta"><span className="color-meta"><i style={{background:item.color||'#a9a9a9'}}/>{item.color||'لون غير محدد'}</span><span>{seasonLabel(item.season)}</span></div>{item.notes&&<p className="item-notes">{item.notes}</p>}</div></article>)}<button className="add-card" onClick={openNew}><span><Plus size={22}/></span><b>أضف قطعة جديدة</b><small>صورة وتفاصيل بسيطة</small></button></div>}
@@ -131,13 +132,13 @@ export default function App() {
       </section>}
 
       {tab==='profile'&&<section className="content-view profile-view"><div className="view-intro"><span className="intro-icon"><UserRound/></span><div><h2>تفاصيل بتساعدك تختار</h2><p>اختياري بالكامل. ما بنطلب صورة جسمك ولا بنرفع معلوماتك على الإنترنت.</p></div></div>
-        <div className="profile-form"><label><span><Ruler size={17}/> الطول بالسنتيمتر</span><input type="number" min="80" max="250" inputMode="numeric" value={profile.height??''} onChange={e=>setProfile({...profile,height:e.target.value?Number(e.target.value):undefined})} placeholder="مثلاً 175"/></label><label><span><Sparkles size={17}/> احكيلنا عن ستايلك</span><textarea value={profile.styleNotes} onChange={e=>setProfile({...profile,styleNotes:e.target.value})} placeholder="الألوان اللي بتحبها، القصّات المفضلة، أو أي ملاحظة..."/></label><button className="primary-btn" onClick={saveProfile}>احفظ التغييرات</button><p className="privacy-footnote"><ShieldCheck size={15}/> المعلومات محفوظة محلياً على نفس الجهاز والمتصفح.</p></div>
+        <div className="profile-form"><label><span><Ruler size={17}/> الطول بالسنتيمتر</span><input type="number" min="80" max="250" inputMode="numeric" value={profile.height??''} onChange={e=>setProfile({...profile,height:e.target.value?Number(e.target.value):undefined})} placeholder="مثلاً 175"/></label><label><span><Sparkles size={17}/> احكيلنا عن ستايلك</span><textarea maxLength={1000} value={profile.styleNotes} onChange={e=>setProfile({...profile,styleNotes:e.target.value})} placeholder="الألوان اللي بتحبها، القصّات المفضلة، أو أي ملاحظة..."/></label><button className="primary-btn" onClick={saveProfile}>احفظ التغييرات</button><p className="privacy-footnote"><ShieldCheck size={15}/> المعلومات محفوظة محلياً على نفس الجهاز والمتصفح.</p></div>
       </section>}
     </section>
 
     {modal&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)closeModal()}}><form className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onSubmit={submit}>
       <div className="modal-head"><div><span className="eyebrow">تفاصيل القطعة</span><h2 id="modal-title">{editing?'عدّل القطعة':'قطعة جديدة للخزانة'}</h2></div><button type="button" className="quiet-btn close-btn" onClick={closeModal} aria-label="إغلاق"><X/></button></div>
-      <label className="photo-upload">{preview?<img src={preview} alt="معاينة صورة القطعة"/>:<><Plus size={25}/><b>أضف صورة للقطعة</b><small>صورة من جهازك · حتى 8MB</small></>}<input type="file" accept="image/*" onChange={choosePhoto} aria-label="اختيار صورة القطعة"/></label>
+      <label className="photo-upload">{preview?<img src={preview} alt="معاينة صورة القطعة"/>:<><Plus size={25}/><b>أضف صورة للقطعة</b><small>صورة من جهازك · حتى 8MB</small></>}<input type="file" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" onChange={choosePhoto} aria-label="اختيار صورة القطعة"/></label>
       <label className="field-label">اسم القطعة<input ref={nameInputRef} required maxLength={80} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="مثلاً: قميص أبيض"/></label>
       <div className="form-row"><label className="field-label">التصنيف<select value={form.category} onChange={e=>setForm({...form,category:e.target.value as ClothingCategory})}>{categories.map(c=><option value={c} key={c}>{categoryLabels[c]}</option>)}</select></label><label className="field-label">اللون<input maxLength={40} value={form.color} onChange={e=>setForm({...form,color:e.target.value})} placeholder="أبيض، أسود..."/></label></div>
       <label className="field-label">الموسم<select value={form.season} onChange={e=>setForm({...form,season:e.target.value as ClothingSeason})}><option value="all">كل المواسم</option><option value="summer">صيفي</option><option value="winter">شتوي</option></select></label>
@@ -145,7 +146,7 @@ export default function App() {
       <div className="modal-actions"><button type="button" className="secondary-btn" onClick={closeModal}>إلغاء</button><button className="primary-btn" type="submit" disabled={busy}>{busy?'جاري الحفظ...':editing?'احفظ التعديل':'أضف للخزانة'}</button></div>
     </form></div>}
     <nav className="mobile-nav" aria-label="التنقل"><NavButton active={tab==='wardrobe'} onClick={()=>setTab('wardrobe')} icon={<Shirt/>} label="الملابس"/><NavButton active={tab==='outfits'} onClick={()=>setTab('outfits')} icon={<Sparkles/>} label="التنسيقات"/><NavButton active={tab==='profile'} onClick={()=>setTab('profile')} icon={<UserRound/>} label="ملفي"/></nav>
-  </main>
+  </div>
 }
 
 function NavButton({active,onClick,icon,label}:{active:boolean;onClick:()=>void;icon:ReactNode;label:string}) {
@@ -155,33 +156,3 @@ function Empty({icon,title,description,action}:{icon:ReactNode;title:string;desc
   return <div className="empty-state"><span className="empty-icon">{icon}</span><h3>{title}</h3><p>{description}</p>{action}</div>
 }
 function seasonLabel(s:ClothingSeason){return s==='all'?'كل المواسم':s==='summer'?'صيفي':'شتوي'}
-function buildOutfits(items:ClothingItem[]) {
-  const tops=items.filter(i=>i.category==='tops'),bottoms=items.filter(i=>i.category==='bottoms'),shoes=items.filter(i=>i.category==='shoes'),outerwear=items.filter(i=>i.category==='outerwear')
-  const result:ClothingItem[][]=[]
-  for(const top of tops)for(const bottom of bottoms){
-    if(result.length>=6)return result
-    if(top.season!=='all'&&bottom.season!=='all'&&top.season!==bottom.season)continue
-    const season=top.season==='all'?bottom.season:top.season
-    const shoe=shoes.find(i=>i.season==='all'||season==='all'||i.season===season)
-    const jacket=season==='winter'?outerwear.find(i=>i.season==='all'||i.season==='winter'):undefined
-    result.push([top,bottom,...(shoe?[shoe]:[]),...(jacket?[jacket]:[])])
-  }
-  return result
-}
-function blobToData(blob:Blob):Promise<string>{return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(reader.error);reader.readAsDataURL(blob)})}
-function dataToBlob(data:string){
-  if(!/^data:image\/(png|jpeg|jpg|webp|gif);base64,/i.test(data))throw new Error('Invalid image')
-  const [head,body]=data.split(',');const mime=head.match(/:(.*?);/)?.[1]??'image/png';const binary=atob(body);const bytes=new Uint8Array(binary.length)
-  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i)
-  if(bytes.byteLength>MAX_IMAGE_BYTES)throw new Error('Image too large')
-  return new Blob([bytes],{type:mime})
-}
-type BackupItem=Omit<ClothingItem,'image'>&{image:string|null}
-type Backup={version:number;items:BackupItem[];profile?:BodyProfile}
-function isBackup(value:unknown):value is Backup{
-  if(!value||typeof value!=='object')return false
-  const v=value as Partial<Backup>
-  if(v.version!==1||!Array.isArray(v.items))return false
-  if(v.profile&&(!v.profile||typeof v.profile.styleNotes!=='string'||(v.profile.height!==undefined&&(!Number.isFinite(v.profile.height)||v.profile.height<80||v.profile.height>250))))return false
-  return v.items.every(item=>!!item&&typeof item.id==='string'&&typeof item.name==='string'&&categories.includes(item.category)&&['all','summer','winter'].includes(item.season)&&typeof item.color==='string'&&typeof item.notes==='string'&&Number.isFinite(item.createdAt)&&Number.isFinite(item.updatedAt)&&(item.image===null||typeof item.image==='string'))
-}
