@@ -9,7 +9,7 @@ These are project-local Agent Skills in the standard .agents/skills/<name>/SKILL
 ## Code review and debugging
 - awesome-code-review, agent-code-review, agent-code-analysis
 - awesome-bug-fix, agent-debugging, awesome-root-cause
-- deep-code-audit, awesome-architecture-audit
+- deep-code-audit, deep-review, awesome-architecture-audit
 
 ## Tests and regression
 - awesome-test-writing, awesome-test-gap-audit
@@ -35,3 +35,5 @@ These are project-local Agent Skills in the standard .agents/skills/<name>/SKILL
 - coder/coder deep-review — https://github.com/coder/coder/tree/main/.agents/skills/deep-review
 
 Original skill names, author metadata and license notices are preserved in copied files where supplied. Review upstream repositories for updates before redistributing or making public releases. These skills do not grant this ChatGPT session sub-agent execution, browser access or local shell access; use capabilities available in the coding-agent runtime.
+
+The deep-review skill requires a runtime that can spawn parallel subagents. If that capability is absent, use the single-agent audit workflow and do not claim a multi-agent review occurred.
