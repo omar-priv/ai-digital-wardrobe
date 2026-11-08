@@ -18,6 +18,7 @@ function Photo({blob,name}:{blob:Blob|null;name:string}) {
 export default function App() {
   const [items,setItems] = useState<ClothingItem[]>([])
   const [loading,setLoading] = useState(true)
+  const [loadError,setLoadError] = useState(false)
   const [query,setQuery] = useState('')
   const [filter,setFilter] = useState<'all'|ClothingCategory>('all')
   const [modal,setModal] = useState(false)
@@ -35,7 +36,7 @@ export default function App() {
   useEffect(()=>{
     let active=true
     Promise.all([getAllClothes(),getBodyProfile()]).then(([stored,saved])=>{if(!active)return;setItems(stored);if(saved)setProfile(saved)})
-      .catch(()=>{if(active)setNotice('تعذّر فتح خزانتك المحلية. جرّب تحديث الصفحة.')})
+      .catch(()=>{if(active){setLoadError(true);setNotice('تعذّر فتح خزانتك المحلية. جرّب مرة ثانية.')}})
       .finally(()=>{if(active)setLoading(false)})
     return ()=>{active=false}
   },[])
@@ -111,7 +112,7 @@ export default function App() {
 
     <main id="main-content" className="main-area">
       <header className="topbar"><div className="page-heading"><span className="eyebrow">{tab==='wardrobe'?'مساحة ملابسك':tab==='outfits'?'أفكار من قطعك':'تفضيلاتك'}</span><h1>{tab==='wardrobe'?'خزانة ملابسك':tab==='outfits'?'نسّق إطلالتك':'ملفك الشخصي'}</h1></div>
-        {tab==='wardrobe'&&<div className="top-actions"><button className="quiet-btn" onClick={exportData} disabled={busy} aria-label="تصدير نسخة احتياطية" title="تصدير نسخة احتياطية"><Download size={18}/></button><label className="quiet-btn file-action" title="استيراد نسخة احتياطية" aria-label="استيراد نسخة احتياطية"><Upload size={18}/><input type="file" accept="application/json,.json" onChange={importData} aria-label="اختيار ملف النسخة الاحتياطية"/></label><button className="primary-btn" onClick={openNew}><Plus size={18}/><span>أضف قطعة</span></button></div>}
+        {tab==='wardrobe'&&<div className="top-actions"><button className="quiet-btn" onClick={exportData} disabled={busy} aria-label="تصدير نسخة احتياطية" title="تصدير نسخة احتياطية"><Download size={18}/></button><label className="quiet-btn file-action" title="استيراد نسخة احتياطية" aria-label="استيراد نسخة احتياطية"><Upload size={18}/><input type="file" accept="application/json,.json" disabled={busy} onChange={importData} aria-label="اختيار ملف النسخة الاحتياطية"/></label><button className="primary-btn" onClick={openNew} disabled={busy}><Plus size={18}/><span>أضف قطعة</span></button></div>}
       </header>
       {notice&&<div className="notice" role="status" aria-live="polite">{notice}</div>}
 
@@ -121,7 +122,7 @@ export default function App() {
         </section>
         <div className="section-toolbar"><div><h2>قطعك</h2><p>{visible.length===items.length?'كل القطع الموجودة بخزانتك':'عرض '+visible.length+' من '+items.length+' قطعة'}</p></div><label className="search-box"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="ابحث عن قطعة أو لون" aria-label="ابحث عن قطعة أو لون"/></label></div>
         <div className="filters" aria-label="تصفية حسب التصنيف"><button className={filter==='all'?'selected':''} aria-pressed={filter==='all'} onClick={()=>setFilter('all')}>الكل <span>{items.length}</span></button>{clothingCategories.map(c=><button key={c} className={filter===c?'selected':''} aria-pressed={filter===c} onClick={()=>setFilter(c)}>{categoryLabels[c]}</button>)}</div>
-        {loading?<Empty icon={<PackageOpen/>} title="بنجهّز خزانتك" description="لحظات وبنظهرلك القطع المحفوظة."/>:
+        {loading?<Empty icon={<PackageOpen/>} title="بنجهّز خزانتك" description="لحظات وبنظهرلك القطع المحفوظة."/>:loadError?<Empty icon={<PackageOpen/>} title="ما قدرنا نفتح خزانتك" description="ما بنقدر نأكد إذا عندك قطع محفوظة. افحص مساحة المتصفح وحاول مرة ثانية." action={<button className="primary-btn" onClick={()=>window.location.reload()}>حاول مرة ثانية</button>}/>:
           visible.length===0?<Empty icon={<Shirt/>} title={items.length?'ما لقينا قطع مطابقة':'خزانتك لسه فاضية'} description={items.length?'غيّر كلمة البحث أو اختار تصنيف ثاني.':'أضف أول قطعة وبلّش رتّب خزانتك.'} action={!items.length?<button className="primary-btn" onClick={openNew}><Plus size={18}/> أضف أول قطعة</button>:undefined}/>:
           <div className="clothes-grid">{visible.map(item=><article className="clothing-card" key={item.id}><div className="card-image"><Photo blob={item.image} name={item.name}/><span className="category-chip">{categoryLabels[item.category]}</span><div className="card-actions"><button onClick={()=>openEdit(item)} aria-label={'تعديل '+item.name} title="تعديل"><Pencil size={16}/></button><button onClick={()=>remove(item.id)} aria-label={'حذف '+item.name} title="حذف"><Trash2 size={16}/></button></div></div><div className="card-info"><h3>{item.name}</h3><div className="item-meta"><span className="color-meta"><i style={{background:item.color||'#a9a9a9'}}/>{item.color||'لون غير محدد'}</span><span>{seasonLabel(item.season)}</span></div>{item.notes&&<p className="item-notes">{item.notes}</p>}</div></article>)}<button className="add-card" onClick={openNew}><span><Plus size={22}/></span><b>أضف قطعة جديدة</b><small>صورة وتفاصيل بسيطة</small></button></div>}
       </>}
@@ -132,7 +133,7 @@ export default function App() {
       </section>}
 
       {tab==='profile'&&<section className="content-view profile-view"><div className="view-intro"><span className="intro-icon"><UserRound/></span><div><h2>تفاصيل بتساعدك تختار</h2><p>اختياري بالكامل. ما بنطلب صورة جسمك ولا بنرفع معلوماتك على الإنترنت.</p></div></div>
-        <div className="profile-form"><label><span><Ruler size={17}/> الطول بالسنتيمتر</span><input type="number" min="80" max="250" inputMode="numeric" value={profile.height??''} onChange={e=>setProfile({...profile,height:e.target.value?Number(e.target.value):undefined})} placeholder="مثلاً 175"/></label><label><span><Sparkles size={17}/> احكيلنا عن ستايلك</span><textarea maxLength={1000} value={profile.styleNotes} onChange={e=>setProfile({...profile,styleNotes:e.target.value})} placeholder="الألوان اللي بتحبها، القصّات المفضلة، أو أي ملاحظة..."/></label><button className="primary-btn" onClick={saveProfile}>احفظ التغييرات</button><p className="privacy-footnote"><ShieldCheck size={15}/> المعلومات محفوظة محلياً على نفس الجهاز والمتصفح.</p></div>
+        <div className="profile-form"><label><span><Ruler size={17}/> الطول بالسنتيمتر</span><input type="number" min="80" max="250" inputMode="numeric" value={profile.height??''} onChange={e=>setProfile({...profile,height:e.target.value?Number(e.target.value):undefined})} placeholder="مثلاً 175"/></label><label><span><Sparkles size={17}/> احكيلنا عن ستايلك</span><textarea maxLength={1000} value={profile.styleNotes} onChange={e=>setProfile({...profile,styleNotes:e.target.value})} placeholder="الألوان اللي بتحبها، القصّات المفضلة، أو أي ملاحظة..."/></label><button className="primary-btn" onClick={saveProfile} disabled={busy}>احفظ التغييرات</button><p className="privacy-footnote"><ShieldCheck size={15}/> المعلومات محفوظة محلياً على نفس الجهاز والمتصفح.</p></div>
       </section>}
     </main>
 
