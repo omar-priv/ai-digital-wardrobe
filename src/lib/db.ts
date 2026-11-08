@@ -31,22 +31,23 @@ function run<T>(
   return openDB().then(db => new Promise<T>((resolve, reject) => {
     let transaction: IDBTransaction | undefined
     try {
-      transaction = db.transaction(store, mode)
+      const currentTransaction = db.transaction(store, mode)
+      transaction = currentTransaction
       let result: T
-      const request = action(transaction.objectStore(store))
+      const request = action(currentTransaction.objectStore(store))
       request.onsuccess = () => { result = request.result as T }
       request.onerror = () => reject(request.error ?? new Error('فشلت عملية التخزين'))
-      transaction.oncomplete = () => {
+      currentTransaction.oncomplete = () => {
         db.close()
         resolve(result)
       }
-      transaction.onerror = () => {
+      currentTransaction.onerror = () => {
         db.close()
-        reject(transaction.error ?? new Error('فشلت معاملة التخزين'))
+        reject(currentTransaction.error ?? new Error('فشلت معاملة التخزين'))
       }
-      transaction.onabort = () => {
+      currentTransaction.onabort = () => {
         db.close()
-        reject(transaction.error ?? new Error('تم إلغاء معاملة التخزين'))
+        reject(currentTransaction.error ?? new Error('تم إلغاء معاملة التخزين'))
       }
     } catch (error) {
       if (transaction) {
