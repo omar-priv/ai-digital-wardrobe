@@ -23,6 +23,8 @@ Reviewed the main wardrobe flow and shared shell in `src/App.tsx`, `src/styles.c
 - Browser storage can still be cleared by the user/browser. Export backups before clearing site data.
 
 ## Verification status
+- Source was inspected in three distinct passes: feature/data-flow review, RTL/responsive/accessibility review, and final static consistency review.
+- Selected contrast pairs were calculated: primary button white on accent (#575A91) = 6.41:1; secondary text (#626375) on app canvas (#F1F1F4) = 5.23:1; body copy (#54556E) on intro surface (#DCDbea) = 5.30:1; muted labels (#656678) on white = 5.64:1. These are selected pairs, not a complete rendered audit.
 - Source was inspected and revised through separate implementation and review passes.
 - `npm install`, `npm run build`, browser screenshots, keyboard testing on a real device and 200% zoom testing have **not** been executed in this environment.
 - Contrast values were calculated for selected text/background pairs; a complete rendered contrast audit remains unverified.
