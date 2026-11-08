@@ -50,7 +50,7 @@ These are selected token calculations, not a complete rendered WCAG audit.
 ## Regression tests
 GitHub Actions run: https://github.com/omar-priv/ai-digital-wardrobe/actions/runs/42464127716
 
-<badge>PASS</badge> 3 test files, 13 tests passed:
+**PASS** 3 test files, 13 tests passed:
 - Backup schema and malformed profile rejection.
 - Unsupported/oversized image data rejection.
 - Duplicate item ID rejection.
@@ -58,7 +58,7 @@ GitHub Actions run: https://github.com/omar-priv/ai-digital-wardrobe/actions/run
 - IndexedDB import success/merge behavior.
 - IndexedDB rollback when a record write fails.
 
-<badge>PASS</badge> TypeScript project check and Vite production build passed on revision `cff62321cd205bb39ad3df1b73603b53f88a5b3e`.
+**PASS** TypeScript project check and Vite production build passed on revision `cff62321cd205bb39ad3df1b73603b53f88a5b3e`.
 
 The Vitest configuration explicitly includes only src/**/*.test.ts so the Cloudflare audit validator tests under .agents/skills are not mistaken for Vitest suites.
 
