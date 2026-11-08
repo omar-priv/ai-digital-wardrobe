@@ -128,6 +128,8 @@ The recommendations screen uses the same editorial wardrobe identity; it is not 
 - Retain the established lavender/indigo palette, system font stack, RTL reading order and garment-image `object-fit: contain`.
 - At narrow mobile widths, stack recommendations and keep the top/bottom pair readable as two columns. Optional additions wrap into full-width rows when needed.
 - A garment's optional style label is selected when adding/editing an item. Older records without a style are treated as unspecified, not silently relabelled.
+- Unspecified style is labelled “غير محدد”, not “متعدد الاستخدامات”, to avoid claiming that the garment suits every style.
+- Form hints explain which color values the local matcher recognises and why a manual style label improves results.
 - The empty state should explain that missing/unknown color or style metadata can prevent a strong match, and provide a route back to edit wardrobe records.
 - The score is a deterministic heuristic used for ranking, not a probability or a claim of expert fashion judgment.
 
