@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent, ChangeEvent, ReactNode } from 'react'
 import { Shirt, Plus, Search, Download, Upload, Sparkles, UserRound, Trash2, Pencil, X, ShieldCheck, PackageOpen, Ruler, Layers3 } from 'lucide-react'
 import { deleteClothing, getAllClothes, getBodyProfile, saveBodyProfile, saveClothing } from './lib/db'
@@ -30,6 +30,7 @@ export default function App() {
   const [profile,setProfile] = useState<BodyProfile>({styleNotes:'',updatedAt:Date.now()})
   const [notice,setNotice] = useState('')
   const [busy,setBusy] = useState(false)
+  const nameInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(()=>{if(!photo){setPreview('');return}const url=URL.createObjectURL(photo);setPreview(url);return ()=>URL.revokeObjectURL(url)},[photo])
   useEffect(()=>{
@@ -40,7 +41,7 @@ export default function App() {
     return ()=>{active=false}
   },[])
   useEffect(()=>{if(!notice)return;const id=window.setTimeout(()=>setNotice(''),3600);return ()=>window.clearTimeout(id)},[notice])
-  useEffect(()=>{if(!modal)return;const handler=(e:KeyboardEvent)=>{if(e.key==='Escape')closeModal()};window.addEventListener('keydown',handler);return ()=>window.removeEventListener('keydown',handler)},[modal])
+  useEffect(()=>{if(!modal)return;const previous=document.activeElement as HTMLElement|null;nameInputRef.current?.focus();const handler=(e:KeyboardEvent)=>{if(e.key==='Escape'){closeModal();return}if(e.key==='Tab'){const nodes=Array.from(document.querySelectorAll<HTMLElement>('.modal button:not(:disabled),.modal input:not(:disabled),.modal select:not(:disabled),.modal textarea:not(:disabled)')).filter(node=>node.offsetParent!==null);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}};window.addEventListener('keydown',handler);return ()=>{window.removeEventListener('keydown',handler);previous?.focus()}},[modal])
 
   const visible=useMemo(()=>items.filter(item=>(filter==='all'||item.category===filter)&&(item.name+' '+item.color+' '+item.notes).toLocaleLowerCase('ar').includes(query.toLocaleLowerCase('ar'))),[items,filter,query])
   const suggestions=useMemo(()=>buildOutfits(items),[items])
@@ -50,7 +51,7 @@ export default function App() {
   const closeModal=()=>{setModal(false);setEditing(null);setPhoto(null);setForm(emptyForm)}
   const choosePhoto=(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];event.target.value='';if(!file)return
-    if(!file.type.startsWith('image/')){setNotice('الملف المختار مش صورة.');return}
+    if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)){setNotice('استخدم صورة JPG أو PNG أو WebP أو GIF.');return}
     if(file.size>MAX_IMAGE_BYTES){setNotice('حجم الصورة أكبر من 8 ميغابايت.');return}
     setPhoto(file)
   }
@@ -108,7 +109,7 @@ export default function App() {
 
     <section className="main-area">
       <header className="topbar"><div className="page-heading"><span className="eyebrow">{tab==='wardrobe'?'مساحة ملابسك':tab==='outfits'?'أفكار من قطعك':'تفضيلاتك'}</span><h1>{tab==='wardrobe'?'خزانة ملابسك':tab==='outfits'?'نسّق إطلالتك':'ملفك الشخصي'}</h1></div>
-        {tab==='wardrobe'&&<div className="top-actions"><button className="quiet-btn" onClick={exportData} disabled={busy} aria-label="تصدير نسخة احتياطية" title="تصدير نسخة احتياطية"><Download size={18}/></button><label className="quiet-btn file-action" title="استيراد نسخة احتياطية" aria-label="استيراد نسخة احتياطية"><Upload size={18}/><input hidden type="file" accept="application/json,.json" onChange={importData}/></label><button className="primary-btn" onClick={openNew}><Plus size={18}/><span>أضف قطعة</span></button></div>}
+        {tab==='wardrobe'&&<div className="top-actions"><button className="quiet-btn" onClick={exportData} disabled={busy} aria-label="تصدير نسخة احتياطية" title="تصدير نسخة احتياطية"><Download size={18}/></button><label className="quiet-btn file-action" title="استيراد نسخة احتياطية" aria-label="استيراد نسخة احتياطية"><Upload size={18}/><input type="file" accept="application/json,.json" onChange={importData} aria-label="اختيار ملف النسخة الاحتياطية"/></label><button className="primary-btn" onClick={openNew}><Plus size={18}/><span>أضف قطعة</span></button></div>}
       </header>
       {notice&&<div className="notice" role="status" aria-live="polite">{notice}</div>}
 
@@ -116,7 +117,7 @@ export default function App() {
         <section className="welcome-panel"><div className="welcome-copy"><span className="welcome-kicker">كل قطعة إلها مكان</span><h2>البس اللي بتحبه.<br/>واعرف شو عندك.</h2><p>اجمع ملابسك بمكان واحد، وخلّي تنسيق يومك أسهل.</p><div className="welcome-count"><strong>{items.length.toLocaleString('ar')}</strong><span>قطعة محفوظة بخزانتك</span></div></div>
           <div className="wardrobe-illustration" aria-hidden="true"><div className="hanger-line"/><div className="hanger-shape">⌁</div><div className="fabric fabric-one"/><div className="fabric fabric-two"/><div className="fabric fabric-three"/><span>YOUR DAILY EDIT</span></div>
         </section>
-        <div className="section-toolbar"><div><h2>قطعك</h2><p>{visible.length===items.length?'كل القطع الموجودة بخزانتك':'عرض '+visible.length+' من '+items.length+' قطعة'}</p></div><label className="search-box"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="ابحث عن قطعة أو لون" aria-label="ابحث عن قطعة أو لون"/><kbd>/</kbd></label></div>
+        <div className="section-toolbar"><div><h2>قطعك</h2><p>{visible.length===items.length?'كل القطع الموجودة بخزانتك':'عرض '+visible.length+' من '+items.length+' قطعة'}</p></div><label className="search-box"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="ابحث عن قطعة أو لون" aria-label="ابحث عن قطعة أو لون"/></label></div>
         <div className="filters" aria-label="تصفية حسب التصنيف"><button className={filter==='all'?'selected':''} aria-pressed={filter==='all'} onClick={()=>setFilter('all')}>الكل <span>{items.length}</span></button>{categories.map(c=><button key={c} className={filter===c?'selected':''} aria-pressed={filter===c} onClick={()=>setFilter(c)}>{categoryLabels[c]}</button>)}</div>
         {loading?<Empty icon={<PackageOpen/>} title="بنجهّز خزانتك" description="لحظات وبنظهرلك القطع المحفوظة."/>:
           visible.length===0?<Empty icon={<Shirt/>} title={items.length?'ما لقينا قطع مطابقة':'خزانتك لسه فاضية'} description={items.length?'غيّر كلمة البحث أو اختار تصنيف ثاني.':'أضف أول قطعة وبلّش رتّب خزانتك.'} action={!items.length?<button className="primary-btn" onClick={openNew}><Plus size={18}/> أضف أول قطعة</button>:undefined}/>:
@@ -136,7 +137,7 @@ export default function App() {
     {modal&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)closeModal()}}><form className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onSubmit={submit}>
       <div className="modal-head"><div><span className="eyebrow">تفاصيل القطعة</span><h2 id="modal-title">{editing?'عدّل القطعة':'قطعة جديدة للخزانة'}</h2></div><button type="button" className="quiet-btn close-btn" onClick={closeModal} aria-label="إغلاق"><X/></button></div>
       <label className="photo-upload">{preview?<img src={preview} alt="معاينة صورة القطعة"/>:<><Plus size={25}/><b>أضف صورة للقطعة</b><small>صورة من جهازك · حتى 8MB</small></>}<input type="file" accept="image/*" onChange={choosePhoto} aria-label="اختيار صورة القطعة"/></label>
-      <label className="field-label">اسم القطعة<input required maxLength={80} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="مثلاً: قميص أبيض"/></label>
+      <label className="field-label">اسم القطعة<input ref={nameInputRef} required maxLength={80} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="مثلاً: قميص أبيض"/></label>
       <div className="form-row"><label className="field-label">التصنيف<select value={form.category} onChange={e=>setForm({...form,category:e.target.value as ClothingCategory})}>{categories.map(c=><option value={c} key={c}>{categoryLabels[c]}</option>)}</select></label><label className="field-label">اللون<input maxLength={40} value={form.color} onChange={e=>setForm({...form,color:e.target.value})} placeholder="أبيض، أسود..."/></label></div>
       <label className="field-label">الموسم<select value={form.season} onChange={e=>setForm({...form,season:e.target.value as ClothingSeason})}><option value="all">كل المواسم</option><option value="summer">صيفي</option><option value="winter">شتوي</option></select></label>
       <label className="field-label">ملاحظات<textarea maxLength={500} value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="تفاصيل إضافية (اختياري)"/></label>
@@ -180,5 +181,6 @@ function isBackup(value:unknown):value is Backup{
   if(!value||typeof value!=='object')return false
   const v=value as Partial<Backup>
   if(v.version!==1||!Array.isArray(v.items))return false
+  if(v.profile&&(!v.profile||typeof v.profile.styleNotes!=='string'||(v.profile.height!==undefined&&(!Number.isFinite(v.profile.height)||v.profile.height<80||v.profile.height>250))))return false
   return v.items.every(item=>!!item&&typeof item.id==='string'&&typeof item.name==='string'&&categories.includes(item.category)&&['all','summer','winter'].includes(item.season)&&typeof item.color==='string'&&typeof item.notes==='string'&&(item.image===null||typeof item.image==='string'))
 }
