@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent, ChangeEvent, ReactNode } from 'react'
 import { Shirt, Plus, Search, Download, Upload, Sparkles, UserRound, Trash2, Pencil, X, ShieldCheck, PackageOpen, Ruler, Layers3 } from 'lucide-react'
 import { deleteClothing, getAllClothes, getBodyProfile, importBackup, saveBodyProfile, saveClothing } from './lib/db'
-import { blobToData, dataUrlToBlob, isBackup, MAX_BACKUP_BYTES, MAX_IMAGE_BYTES } from './lib/backup'
+import { blobToData, dataUrlToBlob, isBackup, MAX_BACKUP_BYTES, MAX_EXPORT_IMAGE_BYTES, MAX_IMAGE_BYTES } from './lib/backup'
 import { buildOutfits } from './lib/outfits'
 import { categoryLabels, clothingCategories, makeId } from './lib/format'
 import type { BodyProfile, ClothingCategory, ClothingItem, ClothingSeason } from './types'
@@ -12,7 +12,7 @@ const emptyForm = { name:'', category:'tops' as ClothingCategory, color:'', seas
 function Photo({blob,name}:{blob:Blob|null;name:string}) {
   const [url,setUrl] = useState('')
   useEffect(()=>{ if(!blob){setUrl('');return} const next=URL.createObjectURL(blob);setUrl(next);return ()=>URL.revokeObjectURL(next) },[blob])
-  return url ? <img className="item-photo" src={url} alt={name}/> : <div className="photo-placeholder"><Shirt size={34} strokeWidth={1.4}/></div>
+  return url ? <img className="item-photo" src={url} alt={name} loading="lazy" decoding="async"/> : <div className="photo-placeholder"><Shirt size={34} strokeWidth={1.4}/></div>
 }
 
 export default function App() {
@@ -70,12 +70,16 @@ export default function App() {
     try{await deleteClothing(id);await refresh();setNotice('انحذفت القطعة.')}catch{setNotice('تعذّر حذف القطعة. جرّب مرة ثانية.')}
   }
   const exportData=async()=>{
+    const totalImageBytes=items.reduce((total,item)=>total+(item.image?.size??0),0)
+    if(totalImageBytes>MAX_EXPORT_IMAGE_BYTES){setNotice('حجم صور الخزانة كبير للتصدير الآمن دفعة واحدة. قلّل حجم الصور أو صدّر بعد تقليل عدد القطع.');return}
+    setBusy(true)
     try{
       const payload={version:1,exportedAt:new Date().toISOString(),items:await Promise.all(items.map(async item=>({...item,image:item.image?await blobToData(item.image):null}))),profile}
       const url=URL.createObjectURL(new Blob([JSON.stringify(payload)],{type:'application/json'}))
       const a=document.createElement('a');a.href=url;a.download='my-wardrobe-backup.json';a.click();window.setTimeout(()=>URL.revokeObjectURL(url),1000)
       setNotice('جهزنا النسخة الاحتياطية.')
     }catch{setNotice('تعذّر إنشاء النسخة الاحتياطية.')}
+    finally{setBusy(false)}
   }
   const importData=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];event.target.value='';if(!file)return
