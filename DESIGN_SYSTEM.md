@@ -38,3 +38,7 @@ A quiet digital wardrobe archive: editorial, organized and personal. The clothin
 
 ## Privacy cues
 Explain that local browser storage is device/browser-specific. Never imply cloud backup or cross-device sync unless it is implemented and enabled.
+
+
+## Source of truth
+The detailed, source-grounded design handoff is maintained in [DESIGN.md](./DESIGN.md). It records the current palette, typography, layout breakpoints, image treatment and accessibility behavior. Update both documents when the visual system changes.
