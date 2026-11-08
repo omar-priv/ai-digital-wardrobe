@@ -180,3 +180,23 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 @media(hover:none){.card-actions{opacity:1}}
+
+/* Semantic and responsive refinements from the full design review */
+.brand{
+  width:100%;border:0;background:transparent;font:inherit;text-align:right;cursor:pointer;
+}
+.skip-link{
+  position:absolute;z-index:30;top:10px;inset-inline-start:10px;
+  padding:10px 14px;border-radius:9px;background:#fff;color:#292a3b;
+  box-shadow:0 4px 18px #17172930;transform:translateY(-160%);
+}
+.skip-link:focus{transform:translateY(0)}
+#main-content{scroll-margin-top:18px}
+.card-image .item-photo{object-fit:contain;padding:12px}
+.outfit-piece .item-photo{object-fit:contain;background:#e8e8ed}
+@media(max-width:380px){
+  .topbar{align-items:flex-start;flex-wrap:wrap}
+  .top-actions{margin-inline-start:auto}
+  .wardrobe-illustration{display:none}
+  .welcome-copy{max-width:100%}
+}
