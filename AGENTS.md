@@ -1,6 +1,6 @@
 # Agent instructions — AI Digital Wardrobe
 
-Before changing the interface, read this file, `README.md`, `DESIGN_SYSTEM.md`, `PROJECT_STATUS.md` and `docs/ARCHITECTURE.md`.
+Before changing the interface, read this file, `README.md`, `DESIGN.md`, `DESIGN_SYSTEM.md`, `PROJECT_STATUS.md` and `docs/ARCHITECTURE.md`.
 
 ## Product constraints
 - Arabic-first, right-to-left, mobile-first, and usable on desktop.
