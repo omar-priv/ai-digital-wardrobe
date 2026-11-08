@@ -29,8 +29,9 @@ function run<T>(
   action: (objectStore: IDBObjectStore) => IDBRequest,
 ): Promise<T> {
   return openDB().then(db => new Promise<T>((resolve, reject) => {
+    let transaction: IDBTransaction | undefined
     try {
-      const transaction = db.transaction(store, mode)
+      transaction = db.transaction(store, mode)
       let result: T
       const request = action(transaction.objectStore(store))
       request.onsuccess = () => { result = request.result as T }
@@ -75,19 +76,24 @@ export function importBackup(items: ClothingItem[], profile?: BodyProfile): Prom
       }
       transaction.onerror = () => {
         db.close()
-        reject(transaction.error ?? new Error('فشلت عملية استيراد النسخة الاحتياطية'))
+        reject(transaction?.error ?? new Error('فشلت عملية استيراد النسخة الاحتياطية'))
       }
       transaction.onabort = () => {
         db.close()
-        reject(transaction.error ?? new Error('تم إلغاء استيراد النسخة الاحتياطية'))
+        reject(transaction?.error ?? new Error('تم إلغاء استيراد النسخة الاحتياطية'))
       }
 
       const clothesStore = transaction.objectStore(CLOTHES)
       for (const item of items) clothesStore.put(item)
       if (profile) transaction.objectStore(SETTINGS).put(profile, 'bodyProfile')
     } catch (error) {
-      db.close()
-      reject(error)
+      if (transaction) {
+        transaction.onabort = () => { db.close(); reject(error) }
+        try { transaction.abort() } catch { db.close(); reject(error) }
+      } else {
+        db.close()
+        reject(error)
+      }
     }
   }))
 }
