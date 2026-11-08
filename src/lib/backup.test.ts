@@ -21,6 +21,9 @@ describe('backup validation', () => {
     expect(isBackup({ ...validBackup, items: [{ ...validItem, name: '   ' }] })).toBe(false)
     expect(isBackup({ ...validBackup, items: [{ ...validItem, image: 'data:image/svg+xml;base64,PHN2Zz4=' }] })).toBe(false)
   })
+  it('rejects duplicate item IDs rather than silently overwriting one record', () => {
+    expect(isBackup({ ...validBackup, items: [validItem, { ...validItem, name: 'نسخة ثانية' }] })).toBe(false)
+  })
   it('rejects non-finite timestamps and oversized collections', () => {
     expect(isBackup({ ...validBackup, items: [{ ...validItem, createdAt: Number.NaN }] })).toBe(false)
     expect(isBackup({ ...validBackup, items: Array(10_001).fill(validItem) })).toBe(false)
