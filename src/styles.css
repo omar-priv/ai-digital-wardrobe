@@ -133,7 +133,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .mobile-nav{display:none}
 @media(max-width:1120px){.clothes-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.main-area{padding-inline:30px}}
 @media(max-width:760px){
-  .app-shell{display:block;padding-bottom:76px}
+  .app-shell{display:block;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
   .sidebar{display:none}
   .main-area{padding:23px 17px 35px}
   .topbar{margin-bottom:21px}
