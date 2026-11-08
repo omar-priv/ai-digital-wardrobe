@@ -4,10 +4,11 @@ import { Shirt, Plus, Search, Download, Upload, Sparkles, UserRound, Trash2, Pen
 import { deleteClothing, getAllClothes, getBodyProfile, importBackup, saveBodyProfile, saveClothing } from './lib/db'
 import { blobToData, dataUrlToBlob, isBackup, MAX_BACKUP_BYTES, MAX_EXPORT_IMAGE_BYTES, MAX_IMAGE_BYTES } from './lib/backup'
 import { buildOutfits } from './lib/outfits'
-import { categoryLabels, clothingCategories, makeId } from './lib/format'
-import type { BodyProfile, ClothingCategory, ClothingItem, ClothingSeason } from './types'
+import { categoryLabels, clothingCategories, makeId, styleLabels } from './lib/format'
+import type { BodyProfile, ClothingCategory, ClothingItem, ClothingSeason, ClothingStyle } from './types'
 
-const emptyForm = { name:'', category:'tops' as ClothingCategory, color:'', season:'all' as ClothingSeason, notes:'' }
+const emptyForm = { name:'', category:'tops' as ClothingCategory, color:'', season:'all' as ClothingSeason, style:'any' as ClothingStyle, notes:'' }
+const outfitQualityLabels = { strong: 'متناسق جدًا', good: 'متناسق' }
 
 function Photo({blob,name}:{blob:Blob|null;name:string}) {
   const [url,setUrl] = useState('')
@@ -27,6 +28,8 @@ export default function App() {
   const [photo,setPhoto] = useState<Blob|null>(null)
   const [preview,setPreview] = useState('')
   const [tab,setTab] = useState<'wardrobe'|'outfits'|'profile'>('wardrobe')
+  const [outfitStyleFilter,setOutfitStyleFilter] = useState<ClothingStyle>('any')
+  const [outfitSeasonFilter,setOutfitSeasonFilter] = useState<'any'|ClothingSeason>('any')
   const [profile,setProfile] = useState<BodyProfile>({styleNotes:'',updatedAt:Date.now()})
   const [notice,setNotice] = useState('')
   const [busy,setBusy] = useState(false)
@@ -44,10 +47,10 @@ export default function App() {
   useEffect(()=>{if(!modal)return;const previous=document.activeElement as HTMLElement|null;nameInputRef.current?.focus();const handler=(e:KeyboardEvent)=>{if(e.key==='Escape'){closeModal();return}if(e.key==='Tab'){const nodes=Array.from(document.querySelectorAll<HTMLElement>('.modal button:not(:disabled),.modal input:not(:disabled),.modal select:not(:disabled),.modal textarea:not(:disabled)')).filter(node=>node.offsetParent!==null);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}};window.addEventListener('keydown',handler);return ()=>{window.removeEventListener('keydown',handler);previous?.focus()}},[modal])
 
   const visible=useMemo(()=>items.filter(item=>(filter==='all'||item.category===filter)&&(item.name+' '+item.color+' '+item.notes).toLocaleLowerCase('ar').includes(query.toLocaleLowerCase('ar'))),[items,filter,query])
-  const suggestions=useMemo(()=>buildOutfits(items),[items])
+  const suggestions=useMemo(()=>buildOutfits(items,6,{style:outfitStyleFilter,season:outfitSeasonFilter}),[items,outfitStyleFilter,outfitSeasonFilter])
   const refresh=async()=>setItems(await getAllClothes())
   const openNew=()=>{setEditing(null);setForm(emptyForm);setPhoto(null);setModal(true)}
-  const openEdit=(item:ClothingItem)=>{setEditing(item);setForm({name:item.name,category:item.category,color:item.color,season:item.season,notes:item.notes});setPhoto(item.image);setModal(true)}
+  const openEdit=(item:ClothingItem)=>{setEditing(item);setForm({name:item.name,category:item.category,color:item.color,season:item.season,style:item.style??'any',notes:item.notes});setPhoto(item.image);setModal(true)}
   const closeModal=()=>{setModal(false);setEditing(null);setPhoto(null);setForm(emptyForm)}
   const choosePhoto=(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];event.target.value='';if(!file)return
@@ -133,9 +136,50 @@ export default function App() {
           <div className="clothes-grid">{visible.map(item=><article className="clothing-card" key={item.id}><div className="card-image"><Photo blob={item.image} name={item.name}/><span className="category-chip">{categoryLabels[item.category]}</span><div className="card-actions"><button disabled={busy} onClick={()=>openEdit(item)} aria-label={'تعديل '+item.name} title="تعديل"><Pencil size={16}/></button><button disabled={busy} onClick={()=>remove(item.id)} aria-label={'حذف '+item.name} title="حذف"><Trash2 size={16}/></button></div></div><div className="card-info"><h3>{item.name}</h3><div className="item-meta"><span className="color-meta"><i style={{background:item.color||'#a9a9a9'}}/>{item.color||'لون غير محدد'}</span><span>{seasonLabel(item.season)}</span></div>{item.notes&&<p className="item-notes">{item.notes}</p>}</div></article>)}<button className="add-card" onClick={openNew} disabled={busy}><span><Plus size={22}/></span><b>أضف قطعة جديدة</b><small>صورة وتفاصيل بسيطة</small></button></div>}
       </>}
 
-      {tab==='outfits'&&<section className="content-view"><div className="view-intro"><span className="intro-icon"><Sparkles/></span><div><h2>تنسيقات من خزانتك</h2><p>اقتراحات بسيطة مبنية على القطع اللي أضفتها، بدون API أو إرسال بياناتك.</p></div></div>
-        {suggestions.length?<div className="outfit-grid">{suggestions.map((outfit,index)=><article className="outfit-card" key={outfit.map(i=>i.id).join('-')}><div className="outfit-card-head"><span>اختيار {String(index+1).padStart(2,'0')}</span><b>تنسيق يومي</b></div><div className="outfit-pieces">{outfit.map(item=><div className="outfit-piece" key={item.id}><Photo blob={item.image} name={item.name}/><span>{item.name}</span></div>)}</div></article>)}</div>:
-        <Empty icon={<Sparkles/>} title="بدنا كم قطعة عشان ننسّق" description="أضف قميص وبنطلون، ومنبلّش نركّب إطلالات من الموجود عندك." action={<button className="primary-btn" onClick={()=>{setTab('wardrobe');openNew()}}><Plus size={18}/> أضف قطعة</button>}/>}
+      {tab==='outfits'&&<section className="content-view outfits-view">
+        <div className="outfit-hero">
+          <div className="outfit-hero-copy">
+            <span>تنسيق مبني على تفاصيل قطعك</span>
+            <h2>إطلالات متناسقة، مش مجرد قطعتين جنب بعض.</h2>
+            <p>بنقارن اللون والموسم والستايل، وبنضيف الحذاء والإكسسوارات بس لما تكمل الإطلالة.</p>
+          </div>
+          <div className="outfit-result-count"><strong>{suggestions.length.toLocaleString('ar')}</strong><span>تنسيقات مناسبة</span></div>
+        </div>
+        <div className="outfit-filters">
+          <label>ستايل الإطلالة
+            <select value={outfitStyleFilter} onChange={event=>setOutfitStyleFilter(event.target.value as ClothingStyle)}>
+              <option value="any">كل الأنماط</option>
+              {Object.entries(styleLabels).filter(([style])=>style!=='any').map(([style,label])=><option value={style} key={style}>{label}</option>)}
+            </select>
+          </label>
+          <label>الموسم
+            <select value={outfitSeasonFilter} onChange={event=>setOutfitSeasonFilter(event.target.value as 'any'|ClothingSeason)}>
+              <option value="any">كل المواسم</option><option value="summer">صيفي</option><option value="winter">شتوي</option>
+            </select>
+          </label>
+        </div>
+        {suggestions.length
+          ? <div className="outfit-grid">{suggestions.map((outfit,index)=><article className="outfit-card" key={outfit.id}>
+              <div className="outfit-card-head">
+                <div className="outfit-card-title">
+                  <span className="outfit-rank">{(index+1).toLocaleString('ar')}</span>
+                  <div><h3>{outfit.title}</h3><small>{seasonLabel(outfit.season)} · {styleLabels[outfit.style]}</small></div>
+                </div>
+                <span className={'outfit-quality '+outfit.quality}>{outfitQualityLabels[outfit.quality]}</span>
+              </div>
+              <div className="outfit-main-pair">
+                <OutfitPiece item={outfit.top} label="القطعة العلوية"/>
+                <OutfitPiece item={outfit.bottom} label="القطعة السفلية"/>
+              </div>
+              {outfit.extras.length>0&&<div className="outfit-extras">
+                <h4>تكملة الإطلالة</h4>
+                <div>{outfit.extras.map(item=><OutfitPiece key={item.id} item={item} label={outfitCategoryLabel(item.category)} compact/>)}</div>
+              </div>}
+              {outfit.reasons.length>0&&<ul className="outfit-reasons" aria-label="أسباب اختيار التنسيق">{outfit.reasons.map(reason=><li key={reason}>{reason}</li>)}</ul>}
+            </article>)}</div>
+          : <Empty icon={<Sparkles/>} title="ما لقينا تنسيق متوازن كفاية"
+              description="المحرّك بستبعد التركيبات المتضاربة. حدّد لون وستايل القطع عشان يقدر يختار إطلالات أدق بدل ما يركّب أي قطعتين."
+              action={<button className="primary-btn" onClick={()=>setTab('wardrobe')}>راجع قطع خزانتك</button>}/>}
       </section>}
 
       {tab==='profile'&&<section className="content-view profile-view"><div className="view-intro"><span className="intro-icon"><UserRound/></span><div><h2>تفاصيل بتساعدك تختار</h2><p>اختياري بالكامل. ما بنطلب صورة جسمك ولا بنرفع معلوماتك على الإنترنت.</p></div></div>
@@ -148,7 +192,10 @@ export default function App() {
       <label className="photo-upload">{preview?<img src={preview} alt="معاينة صورة القطعة"/>:<><Plus size={25}/><b>أضف صورة للقطعة</b><small>صورة من جهازك · حتى 8MB</small></>}<input type="file" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" onChange={choosePhoto} disabled={busy} aria-label="اختيار صورة القطعة"/></label>
       <label className="field-label">اسم القطعة<input ref={nameInputRef} required maxLength={80} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="مثلاً: قميص أبيض"/></label>
       <div className="form-row"><label className="field-label">التصنيف<select value={form.category} onChange={e=>setForm({...form,category:e.target.value as ClothingCategory})}>{clothingCategories.map(c=><option value={c} key={c}>{categoryLabels[c]}</option>)}</select></label><label className="field-label">اللون<input maxLength={40} value={form.color} onChange={e=>setForm({...form,color:e.target.value})} placeholder="أبيض، أسود..."/></label></div>
-      <label className="field-label">الموسم<select value={form.season} onChange={e=>setForm({...form,season:e.target.value as ClothingSeason})}><option value="all">كل المواسم</option><option value="summer">صيفي</option><option value="winter">شتوي</option></select></label>
+      <div className="form-row">
+        <label className="field-label">الموسم<select value={form.season} onChange={e=>setForm({...form,season:e.target.value as ClothingSeason})}><option value="all">كل المواسم</option><option value="summer">صيفي</option><option value="winter">شتوي</option></select></label>
+        <label className="field-label">ستايل القطعة<select value={form.style} onChange={e=>setForm({...form,style:e.target.value as ClothingStyle})}>{Object.entries(styleLabels).map(([style,label])=><option value={style} key={style}>{label}</option>)}</select></label>
+      </div>
       <label className="field-label">ملاحظات<textarea maxLength={500} value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="تفاصيل إضافية (اختياري)"/></label>
       <div className="modal-actions"><button type="button" className="secondary-btn" onClick={closeModal}>إلغاء</button><button className="primary-btn" type="submit" disabled={busy}>{busy?'جاري الحفظ...':editing?'احفظ التعديل':'أضف للخزانة'}</button></div>
     </form></div>}
@@ -163,3 +210,15 @@ function Empty({icon,title,description,action}:{icon:ReactNode;title:string;desc
   return <div className="empty-state"><span className="empty-icon">{icon}</span><h3>{title}</h3><p>{description}</p>{action}</div>
 }
 function seasonLabel(s:ClothingSeason){return s==='all'?'كل المواسم':s==='summer'?'صيفي':'شتوي'}
+function outfitCategoryLabel(category:ClothingCategory){
+  if(category==='shoes')return 'الحذاء'
+  if(category==='outerwear')return 'طبقة خارجية'
+  if(category==='accessories')return 'إكسسوار'
+  return categoryLabels[category]
+}
+function OutfitPiece({item,label,compact=false}:{item:ClothingItem;label:string;compact?:boolean}){
+  return <div className={compact?'outfit-extra-item':'outfit-main-item'}>
+    <div className="outfit-item-media"><Photo blob={item.image} name={item.name}/></div>
+    <div className="outfit-item-copy"><small>{label}</small><strong>{item.name}</strong><span>{item.color||'لون غير محدد'}</span></div>
+  </div>
+}
