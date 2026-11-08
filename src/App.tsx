@@ -94,7 +94,9 @@ export default function App() {
   const saveProfile=async()=>{
     if(profile.height!==undefined&&(!Number.isFinite(profile.height)||profile.height<80||profile.height>250)){setNotice('الطول لازم يكون بين 80 و250 سم.');return}
     const next={...profile,updatedAt:Date.now()}
+    setBusy(true)
     try{await saveBodyProfile(next);setProfile(next);setNotice('انحفظت معلوماتك على جهازك.')}catch{setNotice('تعذّر حفظ المعلومات. جرّب مرة ثانية.')}
+    finally{setBusy(false)}
   }
 
   return <div className="app-shell">
