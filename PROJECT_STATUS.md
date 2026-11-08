@@ -17,7 +17,7 @@ Last updated: 2026-11-08
 - [x] Backup — JSON export and validated merge import.
 - [x] UI/UX redesign — Arabic RTL editorial archive direction, responsive mobile navigation and keyboard-aware modal.
 - [x] Agent handoff — AGENTS.md, DESIGN_SYSTEM.md, CODE_REVIEW.md and project-local review skill.
-- [x] CI workflow — build job runs on pushes and pull requests.
+- [x] CI workflow — build job is configured for pushes, pull requests and manual dispatch.
 - [ ] Build verification — pending actual GitHub Actions result / local npm run build.
 - [ ] Browser verification — pending screenshots, keyboard-only testing, zoom and device-width checks.
 - [ ] Optional cloud sync — future opt-in feature only, after privacy review.
