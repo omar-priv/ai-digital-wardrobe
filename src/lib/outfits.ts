@@ -1,4 +1,5 @@
 import type { ClothingItem, ClothingSeason, ClothingStyle, OutfitSuggestion } from '../types'
+import { styleLabels } from './format'
 
 export type OutfitFilters = {
   style?: ClothingStyle | 'any'
@@ -100,7 +101,7 @@ function compatibleSeason(first: ClothingSeason, second: ClothingSeason): boolea
 }
 
 function matchesSeason(item: ClothingItem, season: ClothingSeason): boolean {
-  return item.season === 'all' || season === 'all' || item.season === season
+  return item.season === 'all' || (season !== 'all' && item.season === season)
 }
 
 function resolveSeason(top: ClothingItem, bottom: ClothingItem, selected: ClothingSeason | 'any'): ClothingSeason {
@@ -203,7 +204,7 @@ export function buildOutfits(items: ClothingItem[], limit = 6, filters: OutfitFi
 
       candidates.push({
         id: [top.id, bottom.id, ...extras.map(item => item.id)].join('-'),
-        title: style === 'any' ? 'تنسيق متوازن' : 'إطلالة ' + style,
+        title: style === 'any' ? 'تنسيق متوازن' : 'ستايل ' + styleLabels[style],
         top,
         bottom,
         extras,
