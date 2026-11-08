@@ -50,6 +50,7 @@ The detailed, source-grounded design handoff is maintained in [DESIGN.md](./DESI
 - **Filters:** labelled native selects for style and season; keep them grouped and responsive.
 - **Core pair:** two equal columns for upper and lower garments. Garment images use contained fitting, not cropping.
 - **Optional extras:** smaller separate row for shoes, outerwear and accessories. Extras are never presented as mandatory pieces.
-- **Reason tags:** neutral text surfaces describing the actual signals used by the local engine.
+- **Reason tags:** use the existing accent-soft/ink tokens to describe actual signals used by the local engine.
+- **Form metadata:** label unspecified style as “غير محدد”. Add concise hints for the recognized color names and the role of style metadata.
 - **Quality label:** indicates the engine's heuristic tier only; do not present the numeric score as a probability.
 - **Responsive behavior:** two recommendation columns on wide screens; a single recommendation column on medium/small screens; paired core items stay side by side at 320px unless content forces a stacked fallback.
