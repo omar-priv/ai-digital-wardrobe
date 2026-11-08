@@ -3,6 +3,7 @@ import { clothingCategories } from './format'
 
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024
 export const MAX_BACKUP_BYTES = 50 * 1024 * 1024
+export const MAX_EXPORT_IMAGE_BYTES = 24 * 1024 * 1024
 export const MAX_BACKUP_ITEMS = 10_000
 export const MAX_PROFILE_NOTES = 10_000
 
@@ -47,7 +48,12 @@ function isValidItem(value: unknown): value is BackupItem {
 
 export function isBackup(value: unknown): value is BackupPayload {
   if (!isRecord(value) || value.version !== 1 || !Array.isArray(value.items)) return false
-  if (value.items.length > MAX_BACKUP_ITEMS || !value.items.every(isValidItem)) return false
+  if (value.items.length > MAX_BACKUP_ITEMS) return false
+  const ids = new Set<string>()
+  for (const item of value.items) {
+    if (!isValidItem(item) || ids.has(item.id)) return false
+    ids.add(item.id)
+  }
   if (value.profile !== undefined && !isValidProfile(value.profile)) return false
   return true
 }
