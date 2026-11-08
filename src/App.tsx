@@ -91,6 +91,7 @@ export default function App() {
     finally{setBusy(false)}
   }
   const saveProfile=async()=>{
+    if(profile.height!==undefined&&(!Number.isFinite(profile.height)||profile.height<80||profile.height>250)){setNotice('الطول لازم يكون بين 80 و250 سم.');return}
     const next={...profile,updatedAt:Date.now()}
     try{await saveBodyProfile(next);setProfile(next);setNotice('انحفظت معلوماتك على جهازك.')}catch{setNotice('تعذّر حفظ المعلومات. جرّب مرة ثانية.')}
   }
@@ -182,5 +183,5 @@ function isBackup(value:unknown):value is Backup{
   const v=value as Partial<Backup>
   if(v.version!==1||!Array.isArray(v.items))return false
   if(v.profile&&(!v.profile||typeof v.profile.styleNotes!=='string'||(v.profile.height!==undefined&&(!Number.isFinite(v.profile.height)||v.profile.height<80||v.profile.height>250))))return false
-  return v.items.every(item=>!!item&&typeof item.id==='string'&&typeof item.name==='string'&&categories.includes(item.category)&&['all','summer','winter'].includes(item.season)&&typeof item.color==='string'&&typeof item.notes==='string'&&(item.image===null||typeof item.image==='string'))
+  return v.items.every(item=>!!item&&typeof item.id==='string'&&typeof item.name==='string'&&categories.includes(item.category)&&['all','summer','winter'].includes(item.season)&&typeof item.color==='string'&&typeof item.notes==='string'&&Number.isFinite(item.createdAt)&&Number.isFinite(item.updatedAt)&&(item.image===null||typeof item.image==='string'))
 }
