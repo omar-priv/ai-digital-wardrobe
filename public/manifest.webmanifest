@@ -1,1 +1,19 @@
-{"name":"خزانتي — Digital Wardrobe","short_name":"خزانتي","description":"خزانتك الرقمية الخاصة","lang":"ar","dir":"rtl","start_url":"/","display":"standalone","background_color":"#101311","theme_color":"#101311","icons":[]}
+{
+  "name": "خزانتي — Digital Wardrobe",
+  "short_name": "خزانتي",
+  "description": "خزانتك الرقمية الخاصة",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f1f1f4",
+  "theme_color": "#292a3b",
+  "icons": [
+    {
+      "src": "/wardrobe-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
