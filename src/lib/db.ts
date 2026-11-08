@@ -19,7 +19,6 @@ function openDB(): Promise<IDBDatabase> {
       resolve(db)
     }
     request.onerror = () => reject(request.error ?? new Error('تعذّر فتح قاعدة البيانات'))
-    request.onblocked = () => reject(new Error('قاعدة البيانات مشغولة بتبويب آخر'))
   })
 }
 
@@ -29,7 +28,7 @@ function run<T>(
   mode: IDBTransactionMode,
   action: (objectStore: IDBObjectStore) => IDBRequest,
 ): Promise<T> {
-  return openDB().then(db => new Promise((resolve, reject) => {
+  return openDB().then(db => new Promise<T>((resolve, reject) => {
     try {
       const transaction = db.transaction(store, mode)
       let result: T
@@ -60,7 +59,7 @@ function run<T>(
  * If any write fails, the whole import rolls back instead of leaving a partial restore.
  */
 export function importBackup(items: ClothingItem[], profile?: BodyProfile): Promise<void> {
-  return openDB().then(db => new Promise((resolve, reject) => {
+  return openDB().then(db => new Promise<void>((resolve, reject) => {
     try {
       const stores = profile ? [CLOTHES, SETTINGS] : [CLOTHES]
       const transaction = db.transaction(stores, 'readwrite')
