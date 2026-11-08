@@ -4,10 +4,10 @@ import { clothingCategories } from './format'
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024
 export const MAX_BACKUP_BYTES = 50 * 1024 * 1024
 export const MAX_BACKUP_ITEMS = 10_000
-export const MAX_PROFILE_NOTES = 1_000
+export const MAX_PROFILE_NOTES = 10_000
 
 const allowedSeasons: ClothingSeason[] = ['all', 'summer', 'winter']
-const imageDataPattern = /^data:(image\/(?:png|jpeg|webp|gif));base64,((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?)$/i
+const imageDataPattern = /^data:(image\/(?:png|jpeg|jpg|webp|gif));base64,((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?)$/i
 const maxBase64Chars = Math.ceil(MAX_IMAGE_BYTES / 3) * 4
 
 export type BackupItem = Omit<ClothingItem, 'image'> & { image: string | null }
@@ -57,7 +57,7 @@ export function dataUrlToBlob(data: string): Blob {
   if (!match || match[2].length === 0 || match[2].length > maxBase64Chars) {
     throw new Error('Invalid or oversized image data')
   }
-  const mime = match[1].toLowerCase()
+  const mime = match[1].toLowerCase() === 'image/jpg' ? 'image/jpeg' : match[1].toLowerCase()
   const binary = atob(match[2])
   if (binary.length > MAX_IMAGE_BYTES) throw new Error('Image too large')
   const bytes = new Uint8Array(binary.length)
