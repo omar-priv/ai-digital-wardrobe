@@ -12,7 +12,8 @@ Last updated: 2026-11-08
 ## Implemented features
 - [x] Wardrobe management — add/edit/delete, photos, categories, search and filters.
 - [x] Local profile — optional height and style notes.
-- [x] Outfit suggestions — deterministic local combinations, not AI styling.
+- [ ] Revised outfit engine and recommendation UI implemented on branch `feat/smart-outfit-redesign`: local color-harmony scoring, season/style compatibility, ranked and diversified combinations, optional shoes/layers/accessories, and reason labels. Build/test verification for this branch is pending.
+- [ ] Optional garment style metadata and style/season filters added; old records and v1 backups remain supported. Backup regression tests added but not yet run on this branch.
 - [x] JSON backup export and validated merge import.
 - [x] Atomic backup restore — all records and optional profile are written in one IndexedDB transaction.
 - [x] IndexedDB writes resolve only after transaction completion.
@@ -27,6 +28,8 @@ Last updated: 2026-11-08
 - [x] CI workflow runs regression tests and production build; actions are pinned and token permissions are read-only.
 
 ## Verification state
+- [ ] New branch changes (`feat/smart-outfit-redesign`) have not yet been run through `npm test` or `npm run build` in a local/CI environment.
+- [ ] Visual, RTL and keyboard verification of the revised outfit page has not been run in a real browser.
 - [x] GitHub Actions: 3 test files, 13 tests passed.
 - [x] GitHub Actions: TypeScript project check and Vite production build passed on revision cff62321cd205bb39ad3df1b73603b53f88a5b3e.
 - [ ] Real-browser screenshots, device-width checks, screen-reader checks and 200% zoom checks.
@@ -35,7 +38,7 @@ Last updated: 2026-11-08
 
 ## Known limitations
 - Wardrobe data belongs to one browser/device; there is no cloud sync.
-- Outfit suggestions are basic category/season combinations and do not understand color harmony, fit or personal style.
+- Outfit matching uses transparent local rules for color, season and manually selected style labels. It does not analyze garment images or determine fit, cut or occasion; results depend on the accuracy of the user's labels.
 - Delete has confirmation but no undo.
 - Browser storage can be cleared; export backups regularly.
 - The manifest includes a local SVG icon, but PWA installability and offline behavior are not verified.
