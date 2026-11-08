@@ -115,3 +115,20 @@ These are selected pairings, not a complete WCAG audit of every state.
 - Focus indicators are visible for keyboard users.
 - The bottom navigation remains text-labelled, not icon-only.
 - Static CSS review cannot establish real-device reflow, screen-reader quality or full WCAG conformance. Those still require browser and assistive-technology testing.
+
+
+## 9. Outfit recommendation view
+
+The recommendations screen uses the same editorial wardrobe identity; it is not a separate SaaS dashboard.
+
+- Lead with a concise statement of the matching method and the number of viable looks.
+- Keep style and season filters in a compact control row below the introduction.
+- Each recommendation separates the two core garments (top and bottom) from optional additions (shoes, winter layer, accessories).
+- Display the reason tags after the garment grouping. Reasons describe known evidence only; never imply AI vision, fit analysis, or occasion recognition.
+- Retain the established lavender/indigo palette, system font stack, RTL reading order and garment-image `object-fit: contain`.
+- At narrow mobile widths, stack recommendations and keep the top/bottom pair readable as two columns. Optional additions wrap into full-width rows when needed.
+- A garment's optional style label is selected when adding/editing an item. Older records without a style are treated as unspecified, not silently relabelled.
+- The empty state should explain that missing/unknown color or style metadata can prevent a strong match, and provide a route back to edit wardrobe records.
+- The score is a deterministic heuristic used for ranking, not a probability or a claim of expert fashion judgment.
+
+Rendered browser inspection and viewport checks are still required before the design can be marked verified.
